@@ -23,6 +23,7 @@
 #define BCM2835_GPIO_OFFSET         0x00200000
 #define BCM2835_PWM_OFFSET          0x0020C000
 #define BCM2835_PWM_CLK_OFFSET      0x001010a0
+#define AUX_MU_IER_REG              0x20215048
 
 
 /***************************************
@@ -73,14 +74,14 @@ struct PWM_CLK_CTL_REG
                                          7 = HDMI auxiliary
                                       8-15 = GND
                                          */
-}
+};
 
 struct PWM_CLK_DIV_REG
 {
-    unsigned int PASSWD:8   //Bits 24:31 Clock Manager password "5a"
-    unsigned int   DIVI:12  //Bits 23:12 Integer part of divisor
-    unsigned int   DIVF:12  //Bits  0:11 Fractional part of divisor
-}
+    unsigned int PASSWD:8;   //Bits 24:31 Clock Manager password "5a"
+    unsigned int   DIVI:12;  //Bits 23:12 Integer part of divisor
+    unsigned int   DIVF:12;  //Bits  0:11 Fractional part of divisor
+};
 
 /***************************************
 *            PWM Functionality         * 
@@ -99,7 +100,7 @@ struct PWM_CTL_REG
     unsigned int RSRV0:8; //Bits 24:31
     unsigned int RSRV1:8; //Bits 16:23
     unsigned int MSEN2:1; //Bit  15
-    unsigned int RSRV2:1: //Bit  14
+    unsigned int RSRV2:1; //Bit  14
     unsigned int USEF2:1; //Bit  13
     unsigned int POLA2:1; //Bit  12
     unsigned int SBIT2:1; //Bit  11
@@ -114,7 +115,7 @@ struct PWM_CTL_REG
     unsigned int RPTL1:1; //Bit   2
     unsigned int MODE1:1; //Bit   1
     unsigned int PWEN1:1; //Bit   0
-}
+};
 
 struct PWM_STA_REG
 {
@@ -134,27 +135,27 @@ struct PWM_STA_REG
     unsigned int WERR1:1; //Bit   2    FIFO Write Error Flag
     unsigned int EMPT1:1; //Bit   1    FIFO Empty Flag
     unsigned int FULL1:1; //Bit   0    FIFO Full Flag
-}
+};
 
 struct PWM_RNG1_REG
 {
     unsigned int PWM_RANGE1;    //Bits 0:31 Channel 1 Range
-}
+};
 
 struct PWM_DAT1_REG
 {
     unsigned int PWM_DATA1;     //Bits 0:31 Channel 1 Data
-}
+};
 
 struct PWM_RNG2_REG
 {
     unsigned int PWM_RANGE2;    //Bits 0:31 Channel 2 Range
-}
+};
 
 struct PWM_DAT2_REG
 {
     unsigned int PWM_DATA2;     //Bits 0:31 Channel 2 Data
-}
+};
 
 
 /*******************************************************************************
@@ -171,6 +172,6 @@ struct bcm2835_address_access
     volatile unsigned int *addr;
 };
 
-extern struct bcm2835_address_access gpio;
-extern struct bcm2835_address_access pwm_clk;
-extern struct bcm2835_address_access pwm;
+//extern struct bcm2835_address_access gpio;
+//extern struct bcm2835_address_access pwm_clk;
+//extern struct bcm2835_address_access pwm;
