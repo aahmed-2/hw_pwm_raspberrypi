@@ -28,6 +28,27 @@ void printHexToBinary(char byte)
     }
 }
 
+void mmapDebug(const char* pointer)
+{
+    unsigned int* tmp_pointer = (unsigned int*) pointer;
+
+    printf("                        00  01  02  03\n");
+    printf("--------------------------------------\n\n");
+
+    for(int ix = 0; ix < 6; ix++)
+    {
+        //printf("At location 0x%X: %u, %u\n", (pointer + 4*ix), &pointer[ix], &tmp_pointer[ix] );
+        printf("At location 0x%08X:", (pointer + 4*ix));
+        for(int iy = 0; iy < 4; iy++)
+        {
+            printf("%3u ", pointer[ix + iy]);
+            printHexToBinary( pointer[ix + iy]);
+            printf(" ");
+        }
+        printf("\n");
+    }
+}
+
 // Exposes the physical address defined in the passed structure using mmap on /dev/mem
 int map_peripheral(char* pointer, unsigned long registerAddress)
 {
@@ -55,27 +76,7 @@ int map_peripheral(char* pointer, unsigned long registerAddress)
     else
     {
         printf("Mapping Succeeded.\n");
-        unsigned int* tmp_pointer = (unsigned int*) pointer;
-
-            printf("                        00  01  02  03\n");
-            printf("--------------------------------------\n\n");
-        for(int ix = 0; ix < 6; ix++)
-        {
-            //printf("At location 0x%X: %u, %u\n", (pointer + 4*ix), &pointer[ix], &tmp_pointer[ix] );
-            printf("At location 0x%08X:", (pointer + 4*ix));
-            for(int iy = 0; iy < 4; iy++)
-            {
-                printf("%3u ", pointer[ix + iy]);
-                printHexToBinary( pointer[ix + iy]);
-                printf(" ");
-            }
-            printf("\n");
-        }
-        //printf("Pointer value %X\n",(unsigned*)(pointer + 0x48));
-        //for(int ix = 0; ix < 64; ix++)
-        //{
-        //    printf("Value: %d %x\n", ix, *(pointer + ix));
-        //}
+        mmapDebug(pointer);
     }
     return 0;
 }
