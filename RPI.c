@@ -49,34 +49,55 @@ void mmapDebug(const char* pointer)
     }
 }
 
-// Exposes the physical address defined in the passed structure using mmap on /dev/mem
-int map_peripheral(char* pointer, unsigned long registerAddress)
+unsigned long checkValid_Offset(const unsigned long desiredAddress)
 {
+    // Check if the desired Address is a valid offset
+    // mmap requires offsets to be aligned to PAGE SIZE (i.e. 4096)
+    if( (desiredAddress / PAGE_SIZE) == 0)
+    {
+        return 0;
+    }
+
+    // How far into the page desiredAddress is (i.e. page offset)
+    return (unsigned long) desiredAddress % PAGE_SIZE;
+    
+
+}
+
+
+// Exposes the physical address defined in the passed structure using mmap on /dev/mem
+int map_peripheral(char** pointer, const unsigned long registerAddress)
+{
+    unsigned long page_offset = checkValid_Offset(registerAddress);
+
     // Open /dev/mem
     int mem_fd = -1;
     if( (mem_fd = open("/dev/mem", O_RDWR|O_SYNC)) < 0 )
     {
         printf("Failed to open /dev/mem. Please check permissions.\n");
-        return -1;
+        exit(1);
     }
 
-    pointer = (char*) mmap(
+    *pointer = (char*) mmap(
                 NULL,
                 BLOCK_SIZE,
                 PROT_READ|PROT_WRITE,
                 MAP_SHARED,
-                mem_fd,             // File descriptor to physical memory virtual file '/dev/mem' TODO - clarify this comment
-                0x20200000          // Address in physical map that we want this memory block to expose
+                mem_fd,                          // File descriptor to physical memory virtual file '/dev/mem' TODO - clarify this comment
+                (registerAddress - page_offset)  // Address in physical map that we want this memory block to expose
                 );
     close(mem_fd);
-    if ( pointer == MAP_FAILED)
+
+    if ( *pointer == MAP_FAILED)
     {
         printf("Failed Mapping attempt\n");
+        exit(1);
     }
     else
     {
         printf("Mapping Succeeded.\n");
-        mmapDebug(pointer);
+        *pointer = *pointer + page_offset;
+        //mmapDebug(pointer);
     }
     return 0;
 }
@@ -88,7 +109,9 @@ void unmap_peripheral(char* pointer)
 
 int main(int argc, char* argv [])
 {
-    map_peripheral(gpio, GPIO_BASE);//AUX_MU_IER_REG);
+    map_peripheral(&gpio, GPIO_BASE); //AUX_MU_IER_REG);
+    printf("gpio pointer: %X\n", gpio);
+
     unmap_peripheral(gpio);
     return 0;
 
