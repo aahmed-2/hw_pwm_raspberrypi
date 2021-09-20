@@ -111,8 +111,14 @@ int main(int argc, char* argv [])
 {
     map_peripheral(&gpio, GPIO_BASE); //AUX_MU_IER_REG);
     printf("gpio pointer: %X\n", gpio);
+    map_peripheral(&pwm_clk, CM_PWM_CTL_BASE);
+    printf("gpio pointer: %X\n", pwm_clk);
+    map_peripheral(&pwm, PWM_BASE);
+    printf("gpio pointer: %X\n", pwm);
 
     unmap_peripheral(gpio);
+    unmap_peripheral(pwm_clk);
+    unmap_peripheral(pwm);
     return 0;
 
 }
