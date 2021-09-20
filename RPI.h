@@ -13,7 +13,7 @@
 
 //TODO Check pi block size
 #define BLOCK_SIZE              (4*1024)
-
+#define PAGE_SIZE               4096
 
 /*******************************************************************************
 *                   Raspberry PI Peripheral Address and Offsets                *
@@ -33,15 +33,15 @@
 #define GPIO_BASE               (BCM2835_PERI_BASE + BCM2835_GPIO_OFFSET) //GPIO Base Register
 
 //GPIO setup macros. Always use INP_GPIO(x) before using OUT_GPIO(x) TODO - discover why this is a 'rule' --> might be to zero out 3-bit values in the GPIO select register 
-#define INP_GPIO(g)         *(gpio.addr + (g)/10) &= ~( 7<<(((g)%10)*3) )
-#define OUT_GPIO(g)         *(gpio.addr + (g)/10) |=  ( 1<<(((g)%10)*3) )
-#define SET_GPIO_ALT(g,a)   *(gpio.addr + (g)/10) |=  (((a)<=3?(a) + 4:(a)==4?3:2)<<(((g)%10)*3))
+#define INP_GPIO(p,g)         *(p + (g)/10) &= ~( 7<<(((g)%10)*3) )
+#define OUT_GPIO(p,g)         *(p + (g)/10) |=  ( 1<<(((g)%10)*3) )
+#define SET_GPIO_ALT(p,g,a)   *(p + (g)/10) |=  (((a)<=3?(a) + 4:(a)==4?3:2)<<(((g)%10)*3))
 
-#define SET_GPIO_1(g)            *(gpio.addr + 7) |= (1 << (g))
-#define SET_GPIO_2(g)            *(gpio.addr + 8) |= (1 << ((g)%32))
+#define SET_GPIO_1(p,g)            *(p + 7) |= (1 << (g))
+#define SET_GPIO_2(p,g)            *(p + 8) |= (1 << ((g)%32))
 
-#define CLR_GPIO_1(g)            *(gpio.addr + 10) |= (1 << (g))
-#define CLR_GPIO_2(g)            *(gpio.addr + 11) |= (1 << ((g)%32))
+#define CLR_GPIO_1(p,g)            *(p + 10) |= (1 << (g))
+#define CLR_GPIO_2(p,g)            *(p + 11) |= (1 << ((g)%32))
 
 /***************************************
 *         PWM Clock Functionality      * 
