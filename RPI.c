@@ -32,27 +32,26 @@ void mmapDebug(const char* pointer)
 {
     unsigned int* tmp_pointer = (unsigned int*) pointer;
 
-    printf("                        00  01  02  03\n");
-    printf("--------------------------------------\n\n");
+    //printf("                        00  01  02  03\n");
+    //printf("--------------------------------------\n\n");
 
-    for(int ix = 0; ix < 6; ix++)
+    //printf("At location 0x%X: %u, %u\n", (pointer + 4*ix), &pointer[ix], &tmp_pointer[ix] );
+    printf("At location 0x%08X:", (pointer + 4*ix));
+    for(int iy = 0; iy < 4; iy++)
     {
-        //printf("At location 0x%X: %u, %u\n", (pointer + 4*ix), &pointer[ix], &tmp_pointer[ix] );
-        printf("At location 0x%08X:", (pointer + 4*ix));
-        for(int iy = 0; iy < 4; iy++)
-        {
-            printf("%3u ", pointer[ix + iy]);
-            printHexToBinary( pointer[ix + iy]);
-            printf(" ");
-        }
-        printf("\n");
+        printf("%3u ", pointer[ix + iy]);
+        printHexToBinary( pointer[ix + iy]);
+        printf(" ");
     }
+    printf("\n");
 }
 
+/*
+    Check if the desired Address is a valid offset
+    mmap requires offsets to be aligned to PAGE SIZE (i.e. 4096)
+ */
 unsigned long checkValid_Offset(const unsigned long desiredAddress)
 {
-    // Check if the desired Address is a valid offset
-    // mmap requires offsets to be aligned to PAGE SIZE (i.e. 4096)
     if( (desiredAddress / PAGE_SIZE) == 0)
     {
         return 0;
@@ -60,8 +59,6 @@ unsigned long checkValid_Offset(const unsigned long desiredAddress)
 
     // How far into the page desiredAddress is (i.e. page offset)
     return (unsigned long) desiredAddress % PAGE_SIZE;
-    
-
 }
 
 
