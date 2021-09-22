@@ -1,5 +1,6 @@
 #include "RPI.h"
 
+#include <stdbool.h>
 #include <fcntl.h>
 
 //struct bcm2835_address_access gpio = {GPIO_BASE};
@@ -18,7 +19,7 @@ void printHexToBinary(char byte)
         if( val/div )
         {
             printf("1");
-            val = val - div; 
+            val = val - div;
         }
         else
         {
@@ -28,22 +29,53 @@ void printHexToBinary(char byte)
     }
 }
 
-void mmapDebug(const char* pointer)
+void pointerCharDebug(const char* pointer)
 {
     unsigned int* tmp_pointer = (unsigned int*) pointer;
 
-    //printf("                        00  01  02  03\n");
-    //printf("--------------------------------------\n\n");
-
-    //printf("At location 0x%X: %u, %u\n", (pointer + 4*ix), &pointer[ix], &tmp_pointer[ix] );
-    printf("At location 0x%08X:", (pointer + 4*ix));
+    printf("At location 0x%08X:", pointer);
     for(int iy = 0; iy < 4; iy++)
     {
-        printf("%3u ", pointer[ix + iy]);
-        printHexToBinary( pointer[ix + iy]);
+        printf("%3u ", pointer[iy]);
+        printHexToBinary( pointer[iy]);
         printf(" ");
     }
     printf("\n");
+}
+
+void pointerIntDebug(const char* pointer)
+{
+    unsigned int* tmp_pointer = (unsigned int*) pointer;
+    printf("At location 0x%08x:\n", tmp_pointer);
+    printf("Value in decimal: %u\n", *tmp_pointer);
+    bool val = 0;
+
+    putc(' ', stdout);
+    for(int ix = 0; ix <= 9; ix++)
+    {
+
+        printf("|  Pin %1u  ", ix);
+    }
+
+    printf("|\n |");
+
+    for(int ix = 0; ix < 32; ix++)
+    {
+        val = *tmp_pointer & (1<<ix);
+        if(val)
+        {
+            printf(" 1 ");
+        }
+        else
+        {
+            printf(" 0 ");
+        }
+        if(ix % 3 == 2)
+        {
+           printf("|");
+        }
+    }
+    putc('\n', stdout);
 }
 
 /*
@@ -94,7 +126,6 @@ int map_peripheral(char** pointer, const unsigned long registerAddress)
     {
         printf("Mapping Succeeded.\n");
         *pointer = *pointer + page_offset;
-        //mmapDebug(pointer);
     }
     return 0;
 }
