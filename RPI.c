@@ -135,14 +135,36 @@ void unmap_peripheral(char* pointer)
     munmap(pointer, BLOCK_SIZE);
 }
 
+void initGPIO(char* pointer)
+{
+    unsigned int* tmp_pointer = (unsigned int*) pointer;
+    printf("Pointer starting at: %X\n", pointer);
+    printf("Incremented pointer: %X\n", (pointer+4));
+    printf("Incremented pointer: %X\n", (tmp_pointer+1));
+
+    pointerIntDebug(pointer+4);
+    *(tmp_pointer+1) &=  ~( 7<<(((18)%10)*3) );
+    pointerIntDebug(pointer+4);
+    *(tmp_pointer+1) |=  (((5)<=3?(5) + 4:(5)==4?3:2)<<(((18)%10)*3));
+    pointerIntDebug(pointer+4);
+    *(tmp_pointer+1) &=  ~( 7<<(((18)%10)*3) );
+    pointerIntDebug(pointer+4);
+}
+
+void initPWM(char* pointer)
+{}
+
 int main(int argc, char* argv [])
 {
-    map_peripheral(&gpio, GPIO_BASE); //AUX_MU_IER_REG);
+    map_peripheral(&gpio, GPIO_BASE);
     printf("gpio pointer: %X\n", gpio);
     map_peripheral(&pwm_clk, CM_PWM_CTL_BASE);
     printf("gpio pointer: %X\n", pwm_clk);
     map_peripheral(&pwm, PWM_BASE);
     printf("gpio pointer: %X\n", pwm);
+
+    initGPIO(gpio);
+    initPWM(pwm);
 
     unmap_peripheral(gpio);
     unmap_peripheral(pwm_clk);
