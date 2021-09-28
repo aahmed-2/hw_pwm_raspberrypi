@@ -27,12 +27,12 @@
 
 
 /***************************************
-*            GPIO Functionality        * 
+*            GPIO Functionality        *
 ***************************************/
 
 #define GPIO_BASE               (BCM2835_PERI_BASE + BCM2835_GPIO_OFFSET) //GPIO Base Register
 
-//GPIO setup macros. Always use INP_GPIO(x) before using OUT_GPIO(x) TODO - discover why this is a 'rule' --> might be to zero out 3-bit values in the GPIO select register 
+//GPIO setup macros. Always use INP_GPIO(x) before using OUT_GPIO(x) TODO - discover why this is a 'rule' --> might be to zero out 3-bit values in the GPIO select register
 #define INP_GPIO(p,g)         *(p + (g)/10) &= ~( 7<<(((g)%10)*3) )
 #define OUT_GPIO(p,g)         *(p + (g)/10) |=  ( 1<<(((g)%10)*3) )
 #define SET_GPIO_ALT(p,g,a)   *(p + (g)/10) |=  (((a)<=3?(a) + 4:(a)==4?3:2)<<(((g)%10)*3))
@@ -44,7 +44,7 @@
 #define CLR_GPIO_2(p,g)            *(p + 11) |= (1 << ((g)%32))
 
 /***************************************
-*         PWM Clock Functionality      * 
+*         PWM Clock Functionality      *
 ***************************************/
 
 #define  CM_PWM_CTL_BASE        (BCM2835_PERI_BASE + BCM2835_PWM_CLK_OFFSET)
@@ -84,7 +84,7 @@ struct PWM_CLK_DIV_REG
 };
 
 /***************************************
-*            PWM Functionality         * 
+*            PWM Functionality         *
 ***************************************/
 
 #define  PWM_BASE               (BCM2835_PERI_BASE + BCM2835_PWM_OFFSET)  //PWM  Base Register
@@ -119,7 +119,7 @@ struct PWM_CTL_REG
 
 struct PWM_STA_REG
 {
-    unsigned int RSRV0:8; //Bits 24:31 Reserved 
+    unsigned int RSRV0:8; //Bits 24:31 Reserved
     unsigned int RSRV1:8; //Bits 16:23 Reserved
     unsigned int RSRV2:4; //Bits 13:16 Reserved
     unsigned int  STA4:1; //Bit  12    Channel 4 State
@@ -164,7 +164,7 @@ struct PWM_DAT2_REG
 
 //IO Access
 //TODO Change the name of this struct to something like bmc2835_address_access
-struct bcm2835_address_access 
+struct bcm2835_address_access
 {
     unsigned long addr_p;
     int mem_fd;
