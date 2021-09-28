@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 //struct bcm2835_address_access gpio = {GPIO_BASE};
 //struct bcm2835_address_access pwm_clk = {CM_PWM_CTL_BASE};
@@ -151,8 +152,67 @@ void initGPIO(char* pointer)
     pointerIntDebug(pointer+4);
 }
 
+// cat /sys/kernel/debug/clk/clk_summary
+void initPWM_Clk(char* pointer)
+{
+    unsigned int* tmp_pointer = (unsigned int*) pointer;
+    struct PWM_CLK_CTL_REG *pwm_clk_ctl_reg = (struct PWM_CLK_CTL_REG*) tmp_pointer;
+
+    //0xAB CD EF GH
+    unsigned int zero_mask = 0x00FFFFFF;
+    unsigned int pass_mask = 0x5A000000;
+    *tmp_pointer = *tmp_pointer &= zero_mask;
+    *tmp_pointer = *tmp_pointer |= pass_mask;
+
+
+    while (*tmp_pointer & 0x08)
+    {
+        printf("Waiting for PWM CLK busy bit\n");
+    }
+
+    //Set Clock Divisor (Integer and Factional)
+    if ( !(*tmp_pointer & 0x08) )
+    {
+        unsigned int* pwm_clk_div_reg_pointer = tmp_pointer + 1;
+        *pwm_clk_div_reg_pointer = *pwm_clk_div_reg_pointer &= zero_mask;
+        *pwm_clk_div_reg_pointer = *pwm_clk_div_reg_pointer |= pass_mask;
+
+        *pwm_clk_div_reg_pointer &= 0xFFFA0000;
+    }
+    else
+    {
+        printf("Failure to set clock divisor\n");
+    }
+
+    if ( !(*tmp_pointer & 0x08) )
+    {
+        //Set Clock Source
+        //Setting to PLLD (Clock source #6)
+        *tmp_pointer &= 0xFFFFFFF0;
+        *tmp_pointer |= 0x00000006;
+
+        //Enable Clock Generator
+        *tmp_pointer |= 0x00000010;
+    }
+    else
+    {
+        printf("Failure to Set PWM CLK Source and Enable PWM CLK\n");
+    }
+
+}
+
 void initPWM(char* pointer)
-{}
+{
+    unsigned int* tmp_pointer = (unsigned int*) pointer;
+    unsigned int* pwm_rng1_pointer = (unsigned int*) pointer + 0x10;
+    unsigned int* pwm_dat1_pointer = (unsigned int*) pointer + 0x14;
+
+    *tmp_pointer &= 0x00000000;
+    *tmp_pointer |= 0x00000081;
+
+    *pwm_rng1_pointer = 0x00002700;
+    *pwm_dat1_pointer = 0x000003E0; //10% duty cycle
+}
 
 int main(int argc, char* argv [])
 {
@@ -164,7 +224,23 @@ int main(int argc, char* argv [])
     printf("gpio pointer: %X\n", pwm);
 
     initGPIO(gpio);
+    initPWM_Clk(pwm_clk);
     initPWM(pwm);
+
+    unsigned int* pwm_dat1_pointer = (unsigned int*) (pwm + 0x14);
+    sleep(4);
+    *pwm_dat1_pointer = 0x000005DC; //15% duty cycle
+    sleep(4);
+    *pwm_dat1_pointer = 0x000001F4; // 5% duty cycle
+    sleep(5);
+
+    *pwm_dat1_pointer = 0x00000000; // 0% duty cycle
+    printf("Disabling PWM Channel 1...\n");
+
+    unsigned int* pwm_pointer = (unsigned int*) pwm;
+    *pwm_pointer = 0x00;
+
+    printf("Unmapping peripherals...\n");
 
     unmap_peripheral(gpio);
     unmap_peripheral(pwm_clk);
